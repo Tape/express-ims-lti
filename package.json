@@ -1,0 +1,36 @@
+{
+  "name": "express-ims-lti",
+  "version": "0.1.0",
+  "description": "Express middleware for the ims-lti module",
+  "author": "David Kosub <dave@davidkosub.com>",
+  "contributors": [],
+  "license": "MIT",
+  "keywords": [
+    "express",
+    "ims",
+    "middleware",
+    "lms",
+    "lti"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tape/express-ims-lti.git"
+  },
+  "main": "./src/middlware.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha"
+  },
+  "dependencies": {
+    "ims-lti": "~2.1.0"
+  },
+  "devDependencies": {
+    "mocha": "~2.1.0",
+    "should": "~4.6.0",
+    "supertest": "~0.15.0",
+
+    "body-parser": "~1.11.0",
+    "express": "~4.11.0",
+    "express-session": "~1.10.0",
+    "redis": "~0.12.0"
+  }
+}
