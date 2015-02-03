@@ -1,0 +1,10 @@
+# Dotfiles
+.gitignore
+.npmignore
+.travis.yml
+
+# Test files
+test
+
+# Editor files
+*.sublime-*
