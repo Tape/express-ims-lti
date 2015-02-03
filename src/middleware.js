@@ -21,7 +21,7 @@ module.exports = function (userSettings) {
   var nonceStore = getNonceStore(options.store);
 
   return function (req, res, next) {
-    if (!req.session) {
+    if (!isObject(req.session)) {
       return next(new Error("To use express-ims-lti a session must be present in the request object"));
     }
 
