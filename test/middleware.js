@@ -9,7 +9,7 @@ var should       = require("should");
 var url          = require("url");
 var util         = require("util");
 
-var middleware = require("../src/middleware");
+var middleware = require("../");
 
 var KEY    = "key";
 var SECRET = "secret";
