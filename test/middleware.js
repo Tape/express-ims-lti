@@ -65,6 +65,12 @@ function getValidParams (testUrl) {
 }
 
 describe("express-ims-lti", function () {
+  describe("utils", function () {
+    it("should expose an lti property that has the ims-lti library", function () {
+      should(middleware.lti).be.an.Object;
+    });
+  });
+
   describe("errors", function () {
     it("should throw an error if the consumer_key or consumer_secret is missing", function () {
       (function () {

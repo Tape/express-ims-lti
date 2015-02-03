@@ -52,3 +52,5 @@ module.exports = function (userSettings) {
     next();
   };
 };
+
+module.exports.lti = lti;
