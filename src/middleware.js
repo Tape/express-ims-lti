@@ -37,7 +37,7 @@ module.exports = function (userSettings) {
     // Detect if there is a payload that would indicate an LTI launch. If it is
     // present then verify the request, storing the request parameters into the
     // session if valid, and throwing an error if not.
-    if (isObject(req.body) && req.body.lti_message_type == "basic-lti-launch-request") {
+    if (req.method == "POST" && isObject(req.body) && req.body.lti_message_type == "basic-lti-launch-request") {
       req.lti = new lti.Provider(options.consumer_key, options.consumer_secret, nonceStore);
       return req.lti.valid_request(req, function (err) {
         if (err) {
