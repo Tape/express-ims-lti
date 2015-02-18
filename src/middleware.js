@@ -35,8 +35,8 @@ module.exports = function (userSettings) {
     // already performed the authentication and purely wish to resume the
     // provider instance from the stored session.
     if (req.session.lti) {
-      req.lti = new lti.Provider(options.consumer_key, options.consumer_secret, nonceStore);
-      req.lti.parse_request(req, req.session.lti);
+      req.lti = new lti.Provider(req.session.lti.key, req.session.lti.secret, nonceStore);
+      req.lti.parse_request(req, req.session.lti.params);
       return next();
     }
 
@@ -55,7 +55,11 @@ module.exports = function (userSettings) {
             return next(err);
           }
 
-          req.session.lti = req.body;
+          req.session.lti = {
+            key:    key,
+            secret: secret,
+            params: req.body
+          };
           next();
         });
       });

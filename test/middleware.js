@@ -94,19 +94,13 @@ describe("express-ims-lti", function () {
     });
   });
 
-  describe("expectations", function () {
-    function createApp () {
-      var app = express();
+  describe("Expectations: consumer_key and consumer_secret", function () {
+    beforeEach(function () {
+      var app = this.app = express();
       app.use(bodyParser.json());
       app.use(cookieParser());
       app.use(session({ resave: false, saveUninitialized: true, secret: "easy" }));
-
-      return app;
-    }
-
-    beforeEach(function () {
-      this.app = createApp();
-      this.app.use(middleware({ consumer_key: KEY, consumer_secret: SECRET }));
+      app.use(middleware({ consumer_key: KEY, consumer_secret: SECRET }));
     });
 
     it("should be able to pass over a non-lti request", function (done) {
@@ -133,23 +127,52 @@ describe("express-ims-lti", function () {
         .expect(200, done);
     });
 
-    it("should add the lti property to the request object if successful using the credentials function", function (done) {
-      var app = createApp();
+    it("should load the provider from the session if a user makes another request", function (done) {
+      var Session = stSession({ app: addValidators(this.app) });
+      var agent   = new Session();
+      var test    = agent.post("/");
+
+      test
+        .send(getValidParams(test.url))
+        .expect(function (res) {
+          if (res.status != 200)          return "status should be 200";
+          if (!res.headers["set-cookie"]) return "expected a cookie to be set";
+        })
+        .end(function (err) {
+          if (err) {
+            return done(err);
+          }
+
+          agent
+            .get("/")
+            .expect(200, done);
+        });
+    });
+  });
+
+  describe("Expectations: credentials", function () {
+    beforeEach(function () {
+      var app = this.app = express();
+      app.use(bodyParser.json());
+      app.use(cookieParser());
+      app.use(session({ resave: false, saveUninitialized: true, secret: "easy" }));
 
       app.use(middleware({
         credentials: function (key, callback) {
           callback(null, KEY, SECRET);
         }
       }));
+    });
 
-      var test = request(addValidators(app)).post("/");
+    it("should add the lti property to the request object if successful", function (done) {
+      var test = request(addValidators(this.app)).post("/");
 
       test
         .send(getValidParams(test.url))
         .expect(200, done);
     });
 
-    it("should load the provider from the session if a user makes another request", function (done) {
+    it("should load the provider from the session if the user makes another request", function (done) {
       var Session = stSession({ app: addValidators(this.app) });
       var agent   = new Session();
       var test    = agent.post("/");
