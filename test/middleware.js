@@ -83,15 +83,6 @@ describe("express-ims-lti", function () {
         var middleware = middleware({ consumer_secret: "key" });
       }).should.throw();
     });
-
-    it("should throw an error if it is detected that express session is not loaded", function (done) {
-      var app = express();
-      app.use(middleware({ consumer_key: KEY, consumer_secret: SECRET }));
-
-      request(addNoops(app))
-        .post("/")
-        .expect(500, done);
-    });
   });
 
   describe("Expectations: consumer_key and consumer_secret", function () {

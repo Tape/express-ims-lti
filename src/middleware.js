@@ -27,19 +27,6 @@ module.exports = function (userSettings) {
   }
 
   return function (req, res, next) {
-    if (!isObject(req.session)) {
-      return next(new Error("To use express-ims-lti a session must be present in the request object"));
-    }
-
-    // If an lti property is present within the session that indicates we have
-    // already performed the authentication and purely wish to resume the
-    // provider instance from the stored session.
-    if (req.session.lti) {
-      req.lti = new lti.Provider(req.session.lti.key, req.session.lti.secret, nonceStore);
-      req.lti.parse_request(req, req.session.lti.params);
-      return next();
-    }
-
     // Detect if there is a payload that would indicate an LTI launch. If it is
     // present then verify the request, storing the request parameters into the
     // session if valid, and throwing an error if not.
@@ -63,6 +50,15 @@ module.exports = function (userSettings) {
           next();
         });
       });
+    }
+
+    // If an lti property is present within the session that indicates we have
+    // already performed the authentication and purely wish to resume the
+    // provider instance from the stored session.
+    if (isObject(req.session) && req.session.lti) {
+      req.lti = new lti.Provider(req.session.lti.key, req.session.lti.secret, nonceStore);
+      req.lti.parse_request(req, req.session.lti.params);
+      return next();
     }
 
     next();
