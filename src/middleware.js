@@ -13,12 +13,18 @@ function getNonceStore (store) {
 };
 
 module.exports = function (userSettings) {
-  if (!userSettings.consumer_key || !userSettings.consumer_secret) {
+  if (!userSettings.credentials && (!userSettings.consumer_key || !userSettings.consumer_secret)) {
     throw new Error("A consumer_key and consumer_secret must be present");
   }
 
   var options    = util._extend({}, userSettings);
   var nonceStore = getNonceStore(options.store);
+
+  if (!options.credentials) {
+    options.credentials = function (key, callback) {
+      callback(null, options.consumer_key, options.consumer_secret);
+    };
+  }
 
   return function (req, res, next) {
     if (!isObject(req.session)) {
@@ -38,14 +44,20 @@ module.exports = function (userSettings) {
     // present then verify the request, storing the request parameters into the
     // session if valid, and throwing an error if not.
     if (req.method == "POST" && isObject(req.body) && req.body.lti_message_type == "basic-lti-launch-request") {
-      req.lti = new lti.Provider(options.consumer_key, options.consumer_secret, nonceStore);
-      return req.lti.valid_request(req, function (err) {
+      return options.credentials(req.body.oauth_consumer_key, function (err, key, secret) {
         if (err) {
           return next(err);
         }
 
-        req.session.lti = req.body;
-        next();
+        req.lti = new lti.Provider(key, secret, nonceStore);
+        req.lti.valid_request(req, function (err) {
+          if (err) {
+            return next(err);
+          }
+
+          req.session.lti = req.body;
+          next();
+        });
       });
     }
 

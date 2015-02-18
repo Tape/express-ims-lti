@@ -72,9 +72,15 @@ describe("express-ims-lti", function () {
   });
 
   describe("errors", function () {
-    it("should throw an error if the consumer_key or consumer_secret is missing", function () {
+    it("should throw an error if required configuration params are missing", function () {
       (function () {
-        var callback = middleware();
+        var middleware = middleware();
+      }).should.throw();
+      (function () {
+        var middleware = middleware({ consumer_key: "key" });
+      }).should.throw();
+      (function () {
+        var middleware = middleware({ consumer_secret: "key" });
       }).should.throw();
     });
 
@@ -89,12 +95,18 @@ describe("express-ims-lti", function () {
   });
 
   describe("expectations", function () {
-    beforeEach(function () {
-      var app = this.app = express();
+    function createApp () {
+      var app = express();
       app.use(bodyParser.json());
       app.use(cookieParser());
       app.use(session({ resave: false, saveUninitialized: true, secret: "easy" }));
-      app.use(middleware({ consumer_key: KEY, consumer_secret: SECRET }));
+
+      return app;
+    }
+
+    beforeEach(function () {
+      this.app = createApp();
+      this.app.use(middleware({ consumer_key: KEY, consumer_secret: SECRET }));
     });
 
     it("should be able to pass over a non-lti request", function (done) {
@@ -115,6 +127,22 @@ describe("express-ims-lti", function () {
 
     it("should add the lti property to the request object if successful", function (done) {
       var test = request(addValidators(this.app)).post("/");
+
+      test
+        .send(getValidParams(test.url))
+        .expect(200, done);
+    });
+
+    it("should add the lti property to the request object if successful using the credentials function", function (done) {
+      var app = createApp();
+
+      app.use(middleware({
+        credentials: function (key, callback) {
+          callback(null, KEY, SECRET);
+        }
+      }));
+
+      var test = request(addValidators(app)).post("/");
 
       test
         .send(getValidParams(test.url))
