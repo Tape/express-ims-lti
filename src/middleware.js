@@ -44,7 +44,7 @@ module.exports = function (userSettings) {
     // present then verify the request, storing the request parameters into the
     // session if valid, and throwing an error if not.
     if (req.method == "POST" && isObject(req.body) && req.body.lti_message_type == "basic-lti-launch-request") {
-      return options.credentials(req.body.oauth_consumer_key, function (err, key, secret) {
+      return options.credentials.call(req, req.body.oauth_consumer_key, function (err, key, secret) {
         if (err) {
           return next(err);
         }
