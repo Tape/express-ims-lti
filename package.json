@@ -1,6 +1,6 @@
 {
   "name": "express-ims-lti",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Express middleware for the ims-lti module",
   "author": "David Kosub <dave@davidkosub.com>",
   "contributors": [],
